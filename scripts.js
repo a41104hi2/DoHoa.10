@@ -102,6 +102,106 @@ const uranus = createPlanete(7, uranusTexture, 176, {
 const neptune = createPlanete(7, neptuneTexture, 200);
 const pluto = createPlanete(2.8, plutoTexture, 216);
 
+// Lưu trữ các đối tượng hành tinh đã tạo
+const planets = {
+  mercury,
+  venus,
+  earth,
+  mars,
+  jupiter,
+  saturn,
+  uranus,
+  neptune,
+  pluto
+};
+
+// Lấy các phần tử checkbox hành tinh từ HTML
+const checkboxes = document.querySelectorAll('input[name="planet"]');
+
+// Lấy nút "Hủy hành tinh" từ HTML
+const deleteButton = document.getElementById('deletePlanetButton');
+const restoreButton = document.getElementById('restorePlanetButton');
+
+// Xử lý sự kiện khi nút "Hủy hành tinh" được nhấp
+deleteButton.addEventListener('click', function() {
+  // Duyệt qua từng checkbox
+  checkboxes.forEach(function(checkbox) {
+    // Kiểm tra xem checkbox có được chọn không
+    if (checkbox.checked) {
+      const planetName = checkbox.value;
+      // Kiểm tra xem tên hành tinh có tồn tại trong đối tượng planets không
+      if (planets.hasOwnProperty(planetName)) {
+        const planet = planets[planetName];
+        // Xóa đối tượng hành tinh khỏi scene
+        scene.remove(planet.obj);
+      }
+    }
+  });
+
+  // Vô hiệu hóa nút "Hủy hành tinh"
+  deleteButton.disabled = true;
+});
+
+// ...
+
+// Xử lý sự kiện khi các checkbox thay đổi trạng thái
+checkboxes.forEach(function(checkbox) {
+  checkbox.addEventListener('change', function() {
+    const planetName = checkbox.value;
+    if (planets.hasOwnProperty(planetName)) {
+      const planet = planets[planetName];
+      
+      if (checkbox.checked) {
+        // Nếu checkbox được chọn, hiển thị hành tinh
+        if (!scene.contains(planet.obj)) {
+          scene.add(planet.obj);
+        }
+      } else {
+        // Nếu checkbox không được chọn, ẩn hành tinh
+        if (scene.contains(planet.obj)) {
+          scene.remove(planet.obj);
+        }
+      }
+    }
+    
+    // Kiểm tra xem có checkbox nào được chọn hay không
+    const anyCheckboxChecked = Array.from(checkboxes).some(function(checkbox) {
+      return checkbox.checked;
+    });
+
+    // Kích hoạt hoặc vô hiệu hóa nút "Hủy hành tinh" dựa trên trạng thái checkbox
+    deleteButton.disabled = !anyCheckboxChecked;
+  });
+});
+
+// Xử lý sự kiện khi nút "Khôi phục hành tinh" được nhấp
+restoreButton.addEventListener('click', function() {
+  // Duyệt qua từng checkbox
+  checkboxes.forEach(function(checkbox) {
+    const planetName = checkbox.value;
+    // Kiểm tra xem tên hành tinh có tồn tại trong đối tượng planets không
+    if (planets.hasOwnProperty(planetName)) {
+      const planet = planets[planetName];
+      
+      // Kiểm tra xem hành tinh có bị ẩn không
+      if (!scene.contains(planet.obj)) {
+        // Hiển thị hành tinh bằng cách thêm nó vào scene
+        scene.add(planet.obj);
+        // Đặt lại trạng thái checkbox
+        checkbox.checked = true;
+      }
+    }
+  });
+
+  // Kích hoạt tất cả các checkbox và vô hiệu hóa nút "Khôi phục hành tinh"
+  checkboxes.forEach(function(checkbox) {
+    checkbox.disabled = false;
+  });
+  restoreButton.disabled = true;
+});
+// ...
+
+
 const pointLight = new THREE.PointLight(0xFFFFFF, 2, 300);
 scene.add(pointLight);
 
@@ -110,29 +210,6 @@ let rotationSpeed = 0.004; // Tốc độ ban đầu
 function adjustRotationSpeed(speed) {
 rotationSpeed = speed;
 }
-// const speedControl = document.createElement('div');
-// speedControl.style.position = 'absolute';
-// speedControl.style.top = '10px';
-// speedControl.style.left = '10px';
-// speedControl.style.zIndex = '9999';
-
-// const speedSlider = document.createElement('input');
-// speedSlider.type = 'range';
-// speedSlider.min = '0.1';
-// speedSlider.max = '1';
-// speedSlider.step = '0.1';
-// speedSlider.value = '0.5';
-// speedSlider.style.width = '150px';
-
-// speedControl.appendChild(speedSlider);
-// document.body.appendChild(speedControl);
-
-// const speedSlider = document.getElementById('speed-slider');
-// let rotationSpeed = parseFloat(speedSlider.value);
-
-// speedSlider.addEventListener('input', function(event) {
-//   rotationSpeed = parseFloat(event.target.value);
-// });
 
 function animate() {
     //Self-rotation
